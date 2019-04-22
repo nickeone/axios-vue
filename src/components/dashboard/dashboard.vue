@@ -15,7 +15,7 @@
       }
     },
     created(){
-      axios.get('https://axios-vue-b6916.firebaseio.com/users.json')
+      axios.get('/users.json')
         .then( res => {
           // console.log("2-dash", res);
           const data = res.data;
