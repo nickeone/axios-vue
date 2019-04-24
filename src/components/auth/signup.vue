@@ -69,7 +69,7 @@
 </template>
 
 <script>
-  import axios from '../../axios-auth'
+  import axios from 'axios'
   export default {
     data () {
       return {
@@ -102,15 +102,20 @@
           country: this.country,
           hobbies: this.hobbyInputs.map(hobby => hobby.value),
           terms: this.terms
-        }
-        console.log("1", formData)
-        axios.post('/users.json', formData)
-                .then(res => console.log("2", res))
+        };
+        console.log("1", formData);
+        axios.post('https://www.googleapis.com/identitytoolkit/v3/relyingparty/signupNewUser?key=AIzaSyCEob_KA06qj-2oU-0d_BexcMmHb5eYqxw', {
+          email: formData.email,
+          password: formData.password,
+          returnSecureToken: true
+        })
+                .then(res => console.log("response", res))
                 .catch(err => console.log(err))
       }
     }
   }
 </script>
+
 
 <style scoped>
   .signup-form {
