@@ -5,19 +5,44 @@
     </div>
     <nav>
       <ul>
-        <li>
-          <router-link to="/signup">Sign Up</router-link>
+        <li v-if="!auth">
+        <router-link  to="/signup">Sign Up</router-link>
+      </li>
+        <li v-if="!auth">
+          <router-link  to="/signin">Sign In</router-link>
         </li>
-        <li>
-          <router-link to="/signin">Sign In</router-link>
+        <li v-if="auth">
+          <router-link  to="/dashboard">Dashboard</router-link>
         </li>
-        <li>
-          <router-link to="/dashboard">Dashboard</router-link>
+        <li v-if="auth">
+          <button @click="onLogout" class="logout">Logout</button>
         </li>
       </ul>
+
     </nav>
   </header>
 </template>
+
+<script>
+  export default {
+      created(){
+          console.log('dashboard', this.$store.state.idToken);
+          console.log('dashboard2', this.$store.getters.isAuth);
+      },
+      computed: {
+          auth(){
+              console.log('comp1',(this.$store.getters.isAuth));
+              return this.$store.getters.isAuth
+          }
+      },
+      methods: {
+          onLogout(){
+              console.log('logout');
+              this.$store.dispatch('logout');
+          }
+      }
+  }
+</script>
 
 <style scoped>
   #header {
@@ -67,5 +92,12 @@
   li a:active,
   li a.router-link-active {
     color: #fa923f;
+  }
+  .logout {
+    font: inherit;
+    border: none;
+    color: white;
+    background: transparent;
+    cursor: pointer;
   }
 </style>

@@ -6,13 +6,23 @@ import DashboardPage from './components/dashboard/dashboard.vue'
 import SignupPage from './components/auth/signup.vue'
 import SigninPage from './components/auth/signin.vue'
 
+import store from './store';
+
 Vue.use(VueRouter)
 
 const routes = [
   { path: '/', component: WelcomePage },
   { path: '/signup', component: SignupPage },
-  { path: '/signin', component: SigninPage },
-  { path: '/dashboard', component: DashboardPage }
+  { path: '/signin', component: SigninPage, name: 'signin' },
+  { path: '/dashboard',component: DashboardPage, name: 'dashboard',
+      beforeEnter: (to, from, next) => {
+        if(store.state.idToken){
+          next()
+        }else{
+          next('/signin')
+        }
+      }
+  }
 ]
 
 export default new VueRouter({mode: 'history', routes})
