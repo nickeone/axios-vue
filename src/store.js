@@ -26,10 +26,18 @@ export default new Vuex.Store({
     clearAuthData(state){
         state.idToken = null;
         state.userId = null;
+        localStorage.removeItem("token");
+        localStorage.removeItem("userId");
+        localStorage.removeItem("expiresIngit");
         router.push( {name: 'signin'});
     }
   },
   actions: {
+    setLogoutTimer({commit}, expirationTime){
+        setTimeout(() => {
+            commit('clearAuthData');
+        }, expirationTime * 1000)
+    },
     logout({commit}){
         commit('clearAuthData')
     },
@@ -42,13 +50,19 @@ export default new Vuex.Store({
         returnSecureToken: true
       })
           .then(res => {
-            console.log('res',res);
+            const now = new Date().getTime();
+            const expirationDate = new Date(now + res.data.expiresIn * 1000);
+            localStorage.setItem('token', res.data.idToken);
+            localStorage.setItem('userId', res.data.localId);
+            localStorage.setItem('expiresIn', expirationDate);
             commit('authUser',  res.data);
-            dispatch('storeUserToFirebase', authData)
+            dispatch('storeUserToFirebase', authData);
+            dispatch('setLogoutTimer', res.data.expiresIn);
+
           })
           .catch(err => console.log(err))
     },
-    login ({ commit}, authData) {
+    login ({ commit, dispatch}, authData) {
       // commit('increment');
       axios.post('https://www.googleapis.com/identitytoolkit/v3/relyingparty/verifyPassword?key=AIzaSyCEob_KA06qj-2oU-0d_BexcMmHb5eYqxw', {
         email: authData.email,
@@ -56,10 +70,37 @@ export default new Vuex.Store({
         returnSecureToken: true
       })
           .then(res => {
-            console.log('res',res);
-            commit('authUser',  res.data)      //
+            console.log('res',res.data);
+            commit('authUser',  res.data);
+            dispatch('setLogoutTimer', res.data.expiresIn);
+              const now = new Date().getTime();
+              const expirationDate = new Date(now + res.data.expiresIn * 1000);
+              localStorage.setItem('token', res.data.idToken);
+              localStorage.setItem('userId', res.data.localId);
+              localStorage.setItem('expiresIn', expirationDate);
+
           })
           .catch(err => console.log(err))
+    },
+    tryAutoLogin({commit}){
+
+        const token = localStorage.getItem('token');
+        console.log('res-nicu');
+        const now = new Date();
+        const expirationDate = localStorage.getItem('expiresIn');
+        const userId = localStorage.getItem('userId');
+        console.log('token',token);
+        if(!token){
+            return;
+        }
+        if(now >= expirationDate){
+            return;
+        }
+        const resData = {idToken: token, localId: userId};
+        console.log('res-nicu-2', resData);
+        commit('authUser', resData)
+
+
     },
     storeUserToFirebase({commit, state}, userData){
         console.log('userDataAxiosPost', userData);
