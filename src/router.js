@@ -8,7 +8,7 @@ import SigninPage from './components/auth/signin.vue'
 
 import store from './store';
 
-Vue.use(VueRouter)
+Vue.use(VueRouter);
 
 const routes = [
   { path: '/', component: WelcomePage },
