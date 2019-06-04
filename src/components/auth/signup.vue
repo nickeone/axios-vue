@@ -2,16 +2,18 @@
   <div id="signup">
     <div class="signup-form">
       <form @submit.prevent="onSubmit">
-        <div class="input">
+        <div class="input" :class="{invalid: $v.email.$error}" >
           <label for="email">Mail</label>
           <input
                   type="email"
                   id="email"
                   v-model="email"
                   @input="$v.email.$touch()">
-          <div>{{$v}}</div>
+          <!--<div>{{$v.email.required}}</div>-->
+          <p v-if="!$v.email.email">Please check if email is valid</p>
+          <p v-if="!$v.email.required">The field must not be empty</p>
         </div>
-        <div class="input">
+        <div class="input" :class="{invalid: $v.age.$error}">
           <label for="age">Your Age</label>
           <input
                   type="number"h
@@ -20,7 +22,7 @@
                   @input="$v.age.$touch()">
 
 
-          <div>{{$v}}</div>
+          <!--<div>{{$v.age}}</div>-->
         </div>
         <div class="input">
           <label for="password">Password</label>
@@ -152,6 +154,14 @@
 
   .input.inline label {
     display: inline;
+  }
+
+  .input.invalid input{
+    border: solid red 1px;
+    background: #ffe6e6;
+  }
+  .input.invalid label{
+    color: red;
   }
 
   .input input {
