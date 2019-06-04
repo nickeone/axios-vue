@@ -8,7 +8,7 @@
                   type="email"
                   id="email"
                   v-model="email"
-                  @input="$v.email.$touch()">
+                  @blur="$v.email.$touch()">
           <!--<div>{{$v.email.required}}</div>-->
           <p v-if="!$v.email.email">Please check if email is valid</p>
           <p v-if="!$v.email.required">The field must not be empty</p>
@@ -18,25 +18,32 @@
           <input
                   type="number"h
                   id="age"
-                  v-model.number="age"
-                  @input="$v.age.$touch()">
+                  v-model="age"
+                  @blur="$v.age.$touch()">
 
-
-          <!--<div>{{$v.age}}</div>-->
+          <p v-if="$v.age.$error">Minimum age is {{$v.age.$params.between.min}}</p>
+          <!--<div>{{$v.age.$error}}</div>-->
         </div>
-        <div class="input">
+        <div class="input" :class="{invalid: $v.password.$error}">
           <label for="password">Password</label>
           <input
                   type="password"
                   id="password"
-                  v-model="password">
+                  v-model="password"
+                  @blur="$v.password.$touch()">
+          <p v-if="!$v.password.minLength">Password has to be minimum of  {{$v.password.$params.minLength.min}} characters</p>
+
+          <!--<div>{{$v.password}}</div>-->
         </div>
-        <div class="input">
+        <div class="input" :class="{invalid: $v.confirmPassword.$error}">
           <label for="confirm-password">Confirm Password</label>
           <input
                   type="password"
                   id="confirm-password"
-                  v-model="confirmPassword">
+                  v-model="confirmPassword"
+                  @blur="$v.confirmPassword.$touch()">
+          <p v-if="$v.confirmPassword.$error">Password must match</p>
+          <!--<div>{{$v.confirmPassword}}</div>-->
         </div>
         <div class="input">
           <label for="country">Country</label>
@@ -78,7 +85,7 @@
 
 <script>
   import axios from 'axios'
-  import { required, email, decimal, between } from 'vuelidate/lib/validators'
+  import { required, email, numeric, between, minLength, sameAs } from 'vuelidate/lib/validators'
 
   export default {
     data () {
@@ -93,13 +100,21 @@
       }
     },
     validations: {
+      password: {
+          required,
+          minLength: minLength(6)
+      },
+      confirmPassword: {
+        sameAsPassword: sameAs('password')
+      },
       email: {
           required,
           email
       },
       age: {
-          decimal,
-          between: between(0, 100)
+          required,
+          numeric,
+          between: between(18, 100)
       }
     },
     methods: {
