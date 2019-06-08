@@ -47,7 +47,7 @@
         </div>
         <div class="input">
           <label for="country">Country</label>
-          <select id="country" v-model="country">
+          <select id="country" v-model="country" >
             <option value="usa">USA</option>
             <option value="india">India</option>
             <option value="uk">UK</option>
@@ -57,23 +57,35 @@
         <div class="hobbies">
           <h3>Add some Hobbies</h3>
           <button @click="onAddHobby" type="button">Add Hobby</button>
-          <div class="hobby-list">
+          <div class="hobby-list" >
             <div
                     class="input"
+                    :class="{invalid: $v.hobbyInputs.$each[index].$error}"
                     v-for="(hobbyInput, index) in hobbyInputs"
                     :key="hobbyInput.id">
               <label :for="hobbyInput.id">Hobby #{{ index }}</label>
               <input
                       type="text"
                       :id="hobbyInput.id"
-                      v-model="hobbyInput.value">
+                      v-model="hobbyInput.value"
+                      @blur="$v.hobbyInputs.$each[index].value.$touch()">
               <button @click="onDeleteHobby(hobbyInput.id)" type="button">X</button>
+              <!--{{$v.hobbyInputs.$each[index].value.minLength}}-->
+              <p v-if="!$v.hobbyInputs.$each[index].value.minLength">You should insert minimim of {{$v.hobbyInputs.$each[index].value.$params.minLength.min}} characters</p>
             </div>
+
+
           </div>
         </div>
-        <div class="input inline">
-          <input type="checkbox" id="terms" v-model="terms">
+        <div class="input inline" :class="{invalid: $v.terms.$error}">
+          <input type="checkbox"
+                 id="terms"
+                 v-model="terms"
+                 @change="$v.terms.$touch()" >
           <label for="terms">Accept Terms of Use</label>
+          <!--<div>{{$v.terms}}</div>-->
+          <!--<div>{{vm.country}}</div>-->
+
         </div>
         <div class="submit">
           <button type="submit">Submit</button>
@@ -85,7 +97,7 @@
 
 <script>
   import axios from 'axios'
-  import { required, email, numeric, between, minLength, sameAs } from 'vuelidate/lib/validators'
+  import { required, email, numeric, between, minLength, sameAs, requiredUnless } from 'vuelidate/lib/validators'
 
   export default {
     data () {
@@ -100,6 +112,16 @@
       }
     },
     validations: {
+      hobbyInputs:{
+          minLength: minLength(2),
+          $each: {
+              value: {
+                  minLength: minLength(4),
+                  numeric,
+                  required
+              }
+          }
+      },
       password: {
           required,
           minLength: minLength(6)
@@ -115,6 +137,9 @@
           required,
           numeric,
           between: between(18, 100)
+      },
+      terms: {
+          required: requiredUnless((data => data.country === 'Germany'))
       }
     },
     methods: {
